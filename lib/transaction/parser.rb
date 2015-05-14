@@ -22,6 +22,19 @@ class Transaction
     rule(:month)     {
       (
         # Start with the 12 months in English
+        str("JAN") |
+        str("FEB") |
+        str("MAR") |
+        str("APR") |
+        str("JUN") |
+        str("JUL") |
+        str("AUG") |
+        str("SEP") |
+        str("OCT") |
+        str("NOV") |
+        str("DEC") |
+
+        # Again, lowercased
         str("jan") |
         str("feb") |
         str("mar") |
@@ -35,6 +48,14 @@ class Transaction
         str("dec") |
 
         # Add French month names, where they differ
+        str("FÉV") |
+        str("AVR") |
+        str("MAI") |
+        str("AOU") |
+        str("AOÛ") |
+        str("DÉC") |
+
+        # Again, lowercased
         str("fév") |
         str("avr") |
         str("mai") |
@@ -50,7 +71,18 @@ class Transaction
     rule(:year)      { (str("2") >> match["0-9"].repeat(3)).as(:year) >> space? }
     rule(:posted_on) { day >> month >> year }
 
-    rule(:dollars)   { match['0-9'].repeat }
+    rule(:dollars)   {
+      # NOTE: order dependent; we must attempt the longest matches first, in case they fail
+      # TODO: Generalize in order to parse arbitrarily large numbers: we're limited to 999 million dollars
+      match['1-9'] >> (
+        match['0-9'].repeat(1, 2) >> space >> match['0-9'] >> match['0-9'] >> match['0-9'] >> space >> match['0-9'].repeat(3) |
+        space >> match['0-9'].repeat(1,2) >> match['0-9'] >> space >> match['0-9'].repeat(3) |
+        match['0-9'].repeat(1, 2) >> space >> match['0-9'].repeat(3) |
+        space >> match['0-9'].repeat(3)
+      ) |
+      ( match['1-9'] >> match['0-9'].repeat ) |
+      ( str('0') )
+    }
     rule(:cents)     { match['0-9'].repeat(2) }
     rule(:amount)    { dollars.as(:dollars) >> ( str(".") | str(",") ) >> cents.as(:cents) }
 
