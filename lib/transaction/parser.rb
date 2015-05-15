@@ -1,5 +1,6 @@
 require "parslet"
 require "transaction"
+require "transaction/transform"
 
 class Transaction
   def self.parse(str)
@@ -20,57 +21,7 @@ class Transaction
 
     rule(:day)       { match('[0-9]').repeat(1).as(:day) >> space? }
     rule(:month)     {
-      (
-        # Start with the 12 months in English
-        str("JAN") |
-        str("FEB") |
-        str("MAR") |
-        str("APR") |
-        str("MAY") |
-        str("JUN") |
-        str("JUL") |
-        str("AUG") |
-        str("SEP") |
-        str("OCT") |
-        str("NOV") |
-        str("DEC") |
-
-        # Again, lowercased
-        str("jan") |
-        str("feb") |
-        str("mar") |
-        str("apr") |
-        str("may") |
-        str("jun") |
-        str("jul") |
-        str("aug") |
-        str("sep") |
-        str("oct") |
-        str("nov") |
-        str("dec") |
-
-        # Add French month names, where they differ
-        str("FEV") |
-        str("FÉV") |
-        str("AVR") |
-        str("MAI") |
-        str("AOU") |
-        str("AOÛ") |
-        str("DÉC") |
-
-        # Again, lowercased
-        str("fev") |
-        str("fév") |
-        str("avr") |
-        str("mai") |
-        str("aou") |
-        str("aoû") |
-        str("déc")
-
-        # Notice we skipped juin and juillet: both have the same prefix and introduce
-        # confusion in the grammar. Wait for more data before going further down this
-        # path.
-      ).as(:month) >> fullstop? >> space?
+      Transaction::Transform::NAME_TO_MONTH.keys.map(&method(:str)).reduce{|a, b| a | b}.as(:month) >> fullstop? >> space?
     }
     rule(:year)      { (str("2") >> match["0-9"].repeat(3)).as(:year) >> space? }
     rule(:posted_on) { day >> month >> year }
