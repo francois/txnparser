@@ -26,6 +26,7 @@ class Transaction
         str("FEB") |
         str("MAR") |
         str("APR") |
+        str("MAY") |
         str("JUN") |
         str("JUL") |
         str("AUG") |
@@ -39,6 +40,7 @@ class Transaction
         str("feb") |
         str("mar") |
         str("apr") |
+        str("may") |
         str("jun") |
         str("jul") |
         str("aug") |
@@ -48,6 +50,7 @@ class Transaction
         str("dec") |
 
         # Add French month names, where they differ
+        str("FEV") |
         str("FÉV") |
         str("AVR") |
         str("MAI") |
@@ -56,6 +59,7 @@ class Transaction
         str("DÉC") |
 
         # Again, lowercased
+        str("fev") |
         str("fév") |
         str("avr") |
         str("mai") |
