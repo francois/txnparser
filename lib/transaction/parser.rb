@@ -18,6 +18,7 @@ class Transaction
     rule(:space?)    { space.maybe }
     rule(:fullstop)  { str(".") }
     rule(:fullstop?) { fullstop.maybe }
+    rule(:newline)   { str("\r") | str("\n") | str("\r\n") }
 
     rule(:day)       { match('[0-9]').repeat(1).as(:day) >> space? }
     rule(:month)     {
@@ -41,6 +42,12 @@ class Transaction
     rule(:cents)     { match['0-9'].repeat(2) }
     rule(:amount)    { dollars.as(:dollars) >> ( str(".") | str(",") ) >> cents.as(:cents) }
 
-    root :posted_on
+    rule(:description) { (amount.absent? >> any).repeat >> space? }
+
+    rule(:transaction) {
+      posted_on.as(:posted_on) >> description.as(:desc1) >> amount.as(:amount) >> space?
+    }
+
+    root :transaction
   end
 end
